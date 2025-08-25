@@ -93,6 +93,10 @@ vim.g.maplocalleader = ' '
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -102,10 +106,12 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
+
+vim.o.numberwidth = 2
 
 -- Enable mouse mode, can be useful for resizing splits for example!
-vim.o.mouse = 'a'
+vim.o.mouse = ''
 
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
@@ -166,6 +172,17 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- optionally enable 24-bit colour
+vim.o.termguicolors = true
+
+-- Tab spacing/behavior
+vim.o.expandtab = true -- convert tabs to spaces
+vim.o.shiftwidth = 2 -- number of spaces inserted for each indentation level
+vim.o.tabstop = 2 -- number of spaces inserted for tab character
+vim.o.softtabstop = 2 -- number of spaces inserted for <Tab> key
+vim.o.smartindent = true -- enable smart indentation
+vim.o.breakindent = true -- enable line breaking indentation
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -182,8 +199,13 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
+-- Easily split windows
+vim.keymap.set('n', '<leader>wv', ':vnew<CR>', { desc = '[W]indow Split [V]ertical' })
+vim.keymap.set('n', '<leader>wh', ':new<CR>', { desc = '[W]indow Split [H]orizontal' })
+
+-- vim.keymap.set('n', '<leader>wvt', ':vsplit | terminal', { desc = '[W]indow Split [V]ertical [Teminal]' })
+--  vim.keymap.set('n', '<leader>wht', ':split | terminal', { desc = '[W]indow Split [H]orizontal [Teminal]' })
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -198,6 +220,11 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Tab buffer
+vim.keymap.set('n', '<Tab>', '<Cmd>BufferLineCycleNext<CR>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<S-Tab>', '<Cmd>BufferLineCyclePrev<CR>', { desc = 'Previous buffer' })
+vim.keymap.set('n', '<leader>bd', '<Cmd>bdelete<CR>', { desc = 'Delete buffer' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
@@ -346,6 +373,8 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>w', group = '[W]indowns' },
+        { '<leader>j', group = '[J]ava' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -379,7 +408,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      -- { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -474,6 +503,12 @@ require('lazy').setup({
         { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
       },
     },
+  },
+  {
+    'mfussenegger/nvim-jdtls',
+    -- dependencies = {
+    -- "mfussenegger/nvim-dap",
+    -- }
   },
   {
     -- Main LSP Configuration
@@ -881,20 +916,13 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+    -- Shortened Github Url
+    'shaunsingh/nord.nvim',
+    lazy = false,
+    priority = 1000,
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
-        },
-      }
-
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- Make sure to set the color scheme when neovim loads and configures the dracula plugin
+      vim.cmd [[colorscheme nord]]
     end,
   },
 
@@ -944,7 +972,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'java' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -962,6 +990,185 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+  {
+    'nvim-tree/nvim-tree.lua',
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle [E]xplorer' })
+      vim.keymap.set('n', '<leader>tf', ':NvimTreeFocus<CR>', { desc = '[T]ree [F]ocus' })
+      vim.keymap.set('n', '<leader>bf', ':wincmd p<CR>', { desc = '[Bu]ffer [F]ocus' })
+      require('nvim-tree').setup {
+        hijack_netrw = true,
+        auto_reload_on_write = true,
+        sort = {
+          sorter = 'case_sensitive',
+        },
+        view = {
+          width = 35,
+        },
+        renderer = {
+          group_empty = true,
+          icons = {
+            show = {
+              file = true,
+              folder = true,
+              folder_arrow = false,
+              git = true,
+            },
+          },
+        },
+        filters = {
+          dotfiles = false,
+        },
+        update_focused_file = {
+          enable = true,
+          update_cwd = true,
+        },
+      }
+    end,
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      -- call the setup function with properties to define how our lualine will look
+      require('lualine').setup {
+        options = {
+          -- Use web devicons if you have a nerdfont installed
+          icons_enabled = true,
+          -- Set the theme to dracula, lualine documentation has other themes available as well
+          theme = 'dracula',
+          -- Separate components of lua line with chevrons
+          component_separators = { left = '', right = '' },
+          -- Separate sections with solid triangles
+          section_separators = { left = '', right = '' },
+          -- disable the status line and winbar
+          disabled_filetypes = {
+            statusline = {},
+            winbar = {},
+          },
+          -- Don't focus lualine on NvimTree
+          ignore_focus = { 'NvimTree' },
+          -- Always divide lualine in the middle
+          always_divide_middle = true,
+          -- Disable global status
+          globalstatus = false,
+          -- Refresh every 1000 miliseconds
+          refresh = {
+            statusline = 1000,
+            tabline = 1000,
+            winbar = 1000,
+          },
+        },
+        -- Setup what each lualine section will contain
+        -- sections start at a on the left and go to z on the right
+        sections = {
+          -- display the current mode in section a
+          lualine_a = { 'mode' },
+          -- display the current git branch, git differences, and any code diagnostics in section b
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          -- display the filename in section c
+          lualine_c = { 'filename' },
+          -- display the file encoding type, os, and filetype in section x
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          -- display where you are at in the file in section y
+          lualine_y = { 'progress' },
+          -- display exact location of the cursor in section z
+          lualine_z = { 'location' },
+        },
+        -- Setup what each section will contain in inactive buffers
+        inactive_sections = {
+          -- display nothing in sections a and b
+          lualine_a = {},
+          lualine_b = {},
+          -- display the file name in section c
+          lualine_c = { 'filename' },
+          -- display the exact location of the cursor in section x
+          lualine_x = { 'location' },
+          -- display nothing in sections y and z
+          lualine_y = {},
+          lualine_z = {},
+        },
+        -- Use default values for tabline, winbar, inactive winbar and extensions
+        tabline = {},
+        winbar = {},
+        inactive_winbar = {},
+        extensions = {},
+      }
+    end,
+  },
+  {
+    'elmcgill/springboot-nvim',
+    dependencies = {
+      'neovim/nvim-lspconfig',
+      'mfussenegger/nvim-jdtls',
+    },
+    config = function()
+      local springboot_nvim = require 'springboot-nvim'
+      vim.keymap.set('n', '<leader>jr', springboot_nvim.boot_run, { desc = 'Spring Boot Run Project' })
+      vim.keymap.set('n', '<leader>jc', springboot_nvim.generate_class, { desc = 'Java Create Class' })
+      vim.keymap.set('n', '<leader>ji', springboot_nvim.generate_interface, { desc = 'Java Create Interface' })
+      vim.keymap.set('n', '<leader>je', springboot_nvim.generate_enum, { desc = 'Java Create Enum' })
+      springboot_nvim.setup {}
+    end,
+  },
+  {
+    'akinsho/bufferline.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    version = '*',
+    opts = {
+      options = {
+        mode = 'buffers',
+        diagnostics = 'nvim_lsp',
+        always_show_bufferline = true,
+      },
+    },
+  },
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+      'hrsh7th/cmp-vsnip',
+      'hrsh7th/vim-vsnip',
+    },
+    config = function()
+      local cmp = require 'cmp'
+
+      -- Thêm cấu hình vim.g.vsnip_snippet_dirs
+      local snippets_path = vim.fn.stdpath 'config' .. '/snippets'
+      vim.g.vsnip_snippet_dir = vim.fn.expand(snippets_path)
+
+      cmp.setup {
+        -- snippet = {
+        -- -- REQUIRED - you must specify a snippet engine
+        -- expand = function(args)
+        -- vim.fn['vsnip#anonymous'](args.body) -- For `vsnip` users.
+        -- end,
+        -- },
+        completion = {
+          keyword_length = 3,
+        },
+        mapping = cmp.mapping.preset.insert {
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<C-i>'] = cmp.mapping.abort(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+        },
+        sources = cmp.config.sources {
+          { name = 'nvim_lsp', keyword_length = 3 },
+          { name = 'buffer', keyword_length = 3 },
+          { name = 'path', keyword_length = 5 },
+        },
+      }
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
