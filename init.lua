@@ -572,27 +572,36 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
-          map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          map('<leader>ga', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('<leader>gr', vim.lsp.buf.references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('<leader>gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('<leader>gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+
+          -- Jump to the type of the word under your cursor.
+          --  Useful when you're not sure what type a variable is and you want to see
+          --  the definition of its *type*, not where it was *defined*.
+          map('<leader>gt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
-          map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          map('<leader>gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+          map('<leader>gh', vim.lsp.buf.hover, '[G]oto [H]over')
+
+          map('<leader>gs', vim.lsp.buf.signature_help, '[G]oto [S]ignature')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -601,11 +610,6 @@ require('lazy').setup({
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
           map('gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
-
-          -- Jump to the type of the word under your cursor.
-          --  Useful when you're not sure what type a variable is and you want to see
-          --  the definition of its *type*, not where it was *defined*.
-          map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -917,12 +921,12 @@ require('lazy').setup({
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     -- Shortened Github Url
-    'shaunsingh/nord.nvim',
+    'rebelot/kanagawa.nvim',
     lazy = false,
     priority = 1000,
     config = function()
       -- Make sure to set the color scheme when neovim loads and configures the dracula plugin
-      vim.cmd [[colorscheme nord]]
+      vim.cmd [[colorscheme kanagawa]]
     end,
   },
 
@@ -1170,7 +1174,92 @@ require('lazy').setup({
       }
     end,
   },
-
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    ---@module "ibl"
+    ---@type ibl.config
+    opts = {
+      indent = {
+        char = '│',
+        tab_char = '│',
+      },
+      scope = {
+        show_start = false,
+        show_end = false,
+      },
+    },
+  },
+  {
+    'simrat39/symbols-outline.nvim',
+    cmd = 'SymbolsOutline',
+    keys = {
+      { '<leader>o', '<cmd>SymbolsOutline<cr>', desc = 'Toggle Symbols Outline' },
+    },
+    opts = {
+      highlight_hovered_item = true,
+      show_guides = true,
+      auto_preview = false,
+      position = 'right',
+      relative_width = true,
+      width = 25,
+      auto_close = false,
+      show_numbers = false,
+      show_relative_numbers = false,
+      show_symbol_details = true,
+      preview_bg_highlight = 'Pmenu',
+      autofold_depth = nil,
+      auto_unfold_hover = true,
+      fold_markers = { '', '' },
+      wrap = false,
+      keymaps = { -- These keymaps can be a string or a table for multiple keys
+        close = { '<Esc>', 'q' },
+        goto_location = '<Cr>',
+        focus_location = 'o',
+        hover_symbol = '<C-space>',
+        toggle_preview = 'K',
+        rename_symbol = 'r',
+        code_actions = 'a',
+        fold = 'h',
+        unfold = 'l',
+        fold_all = 'W',
+        unfold_all = 'E',
+        fold_reset = 'R',
+      },
+      lsp_blacklist = {},
+      symbol_blacklist = {},
+      symbols = {
+        File = { icon = '', hl = '@text.uri' },
+        Module = { icon = '', hl = '@namespace' },
+        Namespace = { icon = '', hl = '@namespace' },
+        Package = { icon = '', hl = '@namespace' },
+        Class = { icon = '𝓒', hl = '@type' },
+        Method = { icon = 'ƒ', hl = '@method' },
+        Property = { icon = '', hl = '@method' },
+        Field = { icon = '', hl = '@field' },
+        Constructor = { icon = '', hl = '@constructor' },
+        Enum = { icon = 'ℰ', hl = '@type' },
+        Interface = { icon = 'ﰮ', hl = '@type' },
+        Function = { icon = '', hl = '@function' },
+        Variable = { icon = '', hl = '@constant' },
+        Constant = { icon = '', hl = '@constant' },
+        String = { icon = '𝓐', hl = '@string' },
+        Number = { icon = '#', hl = '@number' },
+        Boolean = { icon = '⊨', hl = '@boolean' },
+        Array = { icon = '', hl = '@constant' },
+        Object = { icon = '⦿', hl = '@type' },
+        Key = { icon = '🔐', hl = '@type' },
+        Null = { icon = 'NULL', hl = '@type' },
+        EnumMember = { icon = '', hl = '@field' },
+        Struct = { icon = '𝓢', hl = '@type' },
+        Event = { icon = '🗲', hl = '@type' },
+        Operator = { icon = '+', hl = '@operator' },
+        TypeParameter = { icon = '𝙏', hl = '@parameter' },
+        Component = { icon = '', hl = '@function' },
+        Fragment = { icon = '', hl = '@constant' },
+      },
+    },
+  },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
