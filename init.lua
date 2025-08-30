@@ -108,7 +108,7 @@ vim.o.number = true
 --  Experiment for yourself to see if you like it!
 vim.o.relativenumber = true
 
-vim.o.numberwidth = 2
+vim.o.numberwidth = 4
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -1260,6 +1260,21 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    config = function()
+      require('nvim-autopairs').setup {
+        check_ts = true, -- bật hỗ trợ treesitter (smart auto pairs)
+        ts_config = {
+          lua = { 'string' }, -- không auto pair trong string lua
+          -- javascript = { "template_string" },
+          java = true, -- disable cho java nếu muốn
+        },
+      }
+    end,
+  },
+
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
